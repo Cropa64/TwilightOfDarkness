@@ -1,4 +1,4 @@
-package dungeons;
+package mapas.dungeons;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -8,12 +8,12 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 import enemigos.Alien;
-import enemigos.Enemigo;
-import gestorMapas.GestorMapas;
-import gestorMapas.Mapa;
+import mapas.gestorMapas.GestorMapas;
+import mapas.gestorMapas.Mapa;
 import personajes.Entidad;
 import personajes.PersonajePrincipal;
 import utilidades.Utiles;
@@ -21,45 +21,83 @@ import utilidades.Utiles;
 public class Dungeon1 extends Mapa{
 
 	private MapObjects aliensObj;
-	private Alien[] aliens;
+	private Array<Alien> aliens2;
 	private Rectangle rectanguloPiso;
 	private Array<Rectangle> colisiones; 
+	private boolean cambioMapa;
+	protected Alien alienPelea;
+	private MapaPeleaDungeon1 mapaPelea;
+	private boolean vieneDePelea;
+	private Vector2 posicionPelea;
 	
 	public Dungeon1(PersonajePrincipal jugador, GestorMapas gestorMapas) {
 		super(jugador, gestorMapas);
+		posicionPelea = new Vector2();
 		jugador.setPosicion(160, 140);
 	}
 
 	@Override
 	public void setPosicionJugador() {
+		if(vieneDePelea) {
+			jugador.setPosicion(posicionPelea.x, posicionPelea.y);
+			vieneDePelea = false;
+		}else {
+			jugador.setPosicion(160, 140);
+		}
 	}
 
 	@Override
 	public void renderizar() {
+		
+		update();
+		
 		renderer.render();
 		jugador.movimiento();
 		
+		dibujarAliens();
+	}
+
+	public void dibujarAliens(){
 		Utiles.sr.begin(ShapeType.Line);
-		for (int i = 0; i < aliens.length; i++) {
-			aliens[i].comportamiento(jugador, this);
-			aliens[i].mostrarColisiones();
+		for (int i = 0; i < aliens2.size; i++) {
+			aliens2.get(i).comportamiento(jugador, this);
+			aliens2.get(i).mostrarColisiones();
 		}
 		Utiles.sr.end();
 		
-		for (int j = 0; j < aliens.length; j++) {
-			aliens[j].barraVida();
+		for (int j = 0; j < aliens2.size; j++) {
+			if(!aliens2.get(j).isMuerto()) {
+				aliens2.get(j).barraVida();
+			}
 		}
+	}
+	
+	private void update() {
+		comprobarVidaAliens();
+	}
+
+	private void comprobarVidaAliens() {
+		for (int i = 0; i < aliens2.size; i++) {
+			if(aliens2.get(i).getVida() == 0) {
+				aliens2.get(i).setMuerto(true);
+				eliminarAliens(i);
+			}
+		}
+	}
+
+	private void eliminarAliens(int posAlien) {
+		aliens2.removeIndex(posAlien);
 	}
 
 	@Override
 	public void crear() {
-		
+		mapaPelea = new MapaPeleaDungeon1(jugador, gestorMapas);
+		mapaPelea.crear();
 		mapa = cargadorMapa.load("mapas/dungeons/dungeon1/dungeon1.tmx");
 		crearEnemigos();
 		crearCapas();
 		renderer = new OrthogonalTiledMapRenderer(mapa);
 		camara.update();
-		
 	}
 
 	public void crearCapas() {
@@ -99,32 +137,25 @@ public class Dungeon1 extends Mapa{
 		
 		aliensObj = new MapObjects();
 		aliensObj = mapa.getLayers().get("aliens").getObjects();
-		aliens = new Alien[aliensObj.getCount()];
-	
+		aliens2 = new Array<Alien>();
+		
 		for (int i = 0; i < aliensObj.getCount(); i++) {
-			aliens[i] = new Alien();
-			aliens[i].setPosicion((float) aliensObj.get(i).getProperties().get("x"), (float) aliensObj.get(i).getProperties().get("y"));
-			aliens[i].getRectangulo().setX((float) aliensObj.get(i).getProperties().get("x"));
-			aliens[i].getRectangulo().setY((float) aliensObj.get(i).getProperties().get("y"));
-			aliens[i].getCirculoAlien().setX((float) aliensObj.get(i).getProperties().get("x"));
-			aliens[i].getCirculoAlien().setY((float) aliensObj.get(i).getProperties().get("y"));
+			aliens2.add(new Alien());
+			aliens2.get(i).setPosicion((float) aliensObj.get(i).getProperties().get("x"), (float) aliensObj.get(i).getProperties().get("y"));
+			aliens2.get(i).getRectangulo().setX((float) aliensObj.get(i).getProperties().get("x"));
+			aliens2.get(i).getRectangulo().setY((float) aliensObj.get(i).getProperties().get("y"));
+			aliens2.get(i).getCirculoAlien().setX((float) aliensObj.get(i).getProperties().get("x"));
+			aliens2.get(i).getCirculoAlien().setY((float) aliensObj.get(i).getProperties().get("y"));
+//			aliens[i] = new Alien();
+//			aliens[i].setPosicion((float) aliensObj.get(i).getProperties().get("x"), (float) aliensObj.get(i).getProperties().get("y"));
+//			aliens[i].getRectangulo().setX((float) aliensObj.get(i).getProperties().get("x"));
+//			aliens[i].getRectangulo().setY((float) aliensObj.get(i).getProperties().get("y"));
+//			aliens[i].getCirculoAlien().setX((float) aliensObj.get(i).getProperties().get("x"));
+//			aliens[i].getCirculoAlien().setY((float) aliensObj.get(i).getProperties().get("y"));
 		}
 		
 	}
-	
-//	@Override
-//	public boolean comprobarColisionEnemigos(PersonajePrincipal jugador) {
-//		boolean colision = false;
-//			
-//		for (int i = 0; i < aliens.length; i++) {
-//			if(Intersector.overlaps(jugador.getRectangulo(), aliens[i].getRectangulo())) {
-//				colision = true;
-//			}
-//		}
-//		
-//		return colision;
-//	}
-	
+
 	@Override
 	public boolean comprobarColision(Entidad entidad) {
 		boolean colision = false;
@@ -135,9 +166,7 @@ public class Dungeon1 extends Mapa{
 			}
 		}
 		
-		if(rectanguloPiso.contains(entidad.getRectangulo())) {
-			//Todo bien
-		}else {
+		if(!rectanguloPiso.contains(entidad.getRectangulo())) {
 			System.out.println("Fuera del mapa");
 			colision = true;
 		}
@@ -146,14 +175,32 @@ public class Dungeon1 extends Mapa{
 
 	@Override
 	public boolean comprobarSalidaMapa() {
-		
-		return false;
+		cambioMapa = false;
+		int i = 0;
+		do {
+			if(aliens2.notEmpty()) {
+				if(!aliens2.get(i).isMuerto()) {
+					if(Intersector.overlaps(jugador.getRectangulo(), aliens2.get(i).getRectangulo())) {
+						cambioMapa = true;
+						alienPelea = aliens2.get(i);
+						break;
+					}else {
+						cambioMapa = false;
+					}
+				}
+			}
+				
+		}while(++i < aliens2.size);
+		return cambioMapa;
 	}
 
 	@Override
 	public Mapa cambioMapa() {
-		
-		return null;
+		mapaPelea.pasarEnemigo(alienPelea);
+		posicionPelea.x = jugador.getPosicion().x;
+		posicionPelea.y = jugador.getPosicion().y;
+		vieneDePelea = true;
+		return mapaPelea;
 	}
 
 	@Override

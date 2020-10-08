@@ -1,17 +1,21 @@
 package utilidades;
 
+import java.util.EventListener;
 import java.util.Random;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Array;
 
 public abstract class Utiles {
 	
 	public static SpriteBatch batch = new SpriteBatch();
 	
 	public static ShapeRenderer sr = new ShapeRenderer();
+	
+	public static Array<EventListener> listeners = new Array<EventListener>();
 	
 	public static int mapaIndicadorPos = 0;
 //	public static Texture personajePrincipalTextura = new Texture("personajes/Ladron/thief.png");

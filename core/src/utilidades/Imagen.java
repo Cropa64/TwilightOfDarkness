@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 
 public class Imagen {
 
-	Texture textura;
+	private Texture textura;
 	
 	public Imagen(String ruta) {
 		textura = new Texture(ruta);

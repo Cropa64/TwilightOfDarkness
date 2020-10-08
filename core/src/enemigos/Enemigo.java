@@ -13,9 +13,9 @@ public abstract class Enemigo extends Entidad {
 		super(sprite);
 	}
 
-	public abstract void hacerdanio(PersonajePrincipal jugador);
+	public abstract void hacerDanio(PersonajePrincipal jugador);
 	
-	public abstract void recibirdanio(int cantidad);
+	public abstract void recibirDanio(int cantidad);
 	
 	public int getVida() {
 		return vida;
@@ -23,6 +23,18 @@ public abstract class Enemigo extends Entidad {
 	
 	public int getVidaMax() {
 		return vidaMax;
+	}
+	
+	public void quitarVida(float vida) {
+		this.vida -= vida;
+		
+		if(this.vida < 0) {
+			this.vida = 0;
+		}
+		if(this.vida > vidaMax) {
+			this.vida = vidaMax;
+		}
+		
 	}
 	
 }

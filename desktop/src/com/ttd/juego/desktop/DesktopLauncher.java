@@ -14,8 +14,9 @@ public class DesktopLauncher {
 		config.fullscreen = false;
 		config.width = 720;
 		config.height = 480;
+		config.fullscreen = false;
 		config.useGL30 = false;
-		config.resizable = false;
+		config.resizable = true;
 		config.vSyncEnabled = false;
 	}
 }

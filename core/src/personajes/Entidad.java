@@ -25,6 +25,12 @@ public abstract class Entidad extends Sprite {
 	public void setPosicion(float x, float y) {
 		this.posicion.x = x;
 		this.posicion.y = y;
+		setPosicionRectangulo(this.posicion.x, this.posicion.y);
+	}
+	
+	private void setPosicionRectangulo(float x, float y) {
+		this.getRectangulo().setX(x);
+		this.getRectangulo().setY(y);
 	}
 	
 	public abstract Rectangle getRectangulo();
